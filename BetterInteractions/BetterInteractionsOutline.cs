@@ -11,10 +11,11 @@ namespace Arys.BetterInteractions
     [DisallowMultipleComponent]
     public class BetterInteractionsOutline : MonoBehaviour
     {
+        internal static readonly HashSet<Mesh> RegisteredMeshes = [];
+
         private static readonly int zTestId = Shader.PropertyToID("_ZTest");
         private static readonly int colorId = Shader.PropertyToID("_OutlineColor");
         private static readonly int widthId = Shader.PropertyToID("_OutlineWidth");
-        private static readonly HashSet<Mesh> registeredMeshes = [];
 
         private Renderer[] renderers;
         private Material maskMaterial;
@@ -37,7 +38,7 @@ namespace Arys.BetterInteractions
             UpdateOutlineSettings();
         }
 
-        private void OnEnable()
+        public void EnableOutline()
         {
             foreach (var renderer in renderers)
             {
@@ -48,7 +49,7 @@ namespace Arys.BetterInteractions
             }
         }
 
-        private void OnDisable()
+        public void DisableOutline()
         {
             foreach (var renderer in renderers)
             {
@@ -72,7 +73,7 @@ namespace Arys.BetterInteractions
             foreach (var meshFilter in GetComponentsInChildren<MeshFilter>())
             {
                 // Skip if mesh is unreadable or smooth normals have already been adopted
-                if (!meshFilter.sharedMesh.isReadable || !registeredMeshes.Add(meshFilter.sharedMesh))
+                if (!meshFilter.sharedMesh.isReadable || !RegisteredMeshes.Add(meshFilter.sharedMesh))
                 {
                     continue;
                 }
@@ -96,7 +97,7 @@ namespace Arys.BetterInteractions
             foreach (var skinnedMeshRenderer in GetComponentsInChildren<SkinnedMeshRenderer>())
             {
                 // Skip if mesh is unreadable or UV3 has already been reset
-                if (!skinnedMeshRenderer.sharedMesh.isReadable || !registeredMeshes.Add(skinnedMeshRenderer.sharedMesh))
+                if (!skinnedMeshRenderer.sharedMesh.isReadable || !RegisteredMeshes.Add(skinnedMeshRenderer.sharedMesh))
                 {
                     continue;
                 }

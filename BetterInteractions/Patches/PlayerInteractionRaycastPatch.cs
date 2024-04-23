@@ -57,6 +57,8 @@ namespace Arys.BetterInteractions.Patches
 
             Ray ray = __instance.InteractionRay;
 
+            Plugin.CachedDetectedColliders ??= new Collider[30];
+
             // Do custom raycast check if no results
             if (
                 Physics.Raycast(ray, out RaycastHit hit, __instance.RayLength, _gameWorldLayer1)
@@ -74,10 +76,9 @@ namespace Arys.BetterInteractions.Patches
                 {
                     Collider detectedCollider = Plugin.CachedDetectedColliders[i];
 
-                    // if detectedCollider is null, it means subsequent indices are null
                     if (detectedCollider is null)
                     {
-                        break;
+                        continue;
                     }
 
                     InteractableObject detectedInteractable = detectedCollider.GetComponentInParent<InteractableObject>();

@@ -20,7 +20,7 @@ namespace Arys.BetterInteractions
         internal static Shader LootItemMaskShader;
         internal static Shader LootItemFillShader;
 
-        internal static Collider[] CachedDetectedColliders = new Collider[30];
+        internal static Collider[] CachedDetectedColliders = null;
         internal static BetterInteractionsOutline CachedOutlineComponent = null;
 
         // Item interactions
