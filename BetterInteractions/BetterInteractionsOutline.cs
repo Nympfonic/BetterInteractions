@@ -21,23 +21,6 @@ namespace Arys.BetterInteractions
         private Material maskMaterial;
         private Material fillMaterial;
 
-        private void Awake()
-        {
-            renderers = GetComponentsInChildren<Renderer>();
-
-            maskMaterial = new Material(Plugin.LootItemMaskShader);
-            fillMaterial = new Material(Plugin.LootItemFillShader);
-
-            maskMaterial.SetFloat(zTestId, (float)CompareFunction.Always);
-            fillMaterial.SetFloat(zTestId, (float)CompareFunction.LessEqual);
-
-            LoadSmoothNormals();
-
-            Plugin.Configuration.SettingChanged += UpdateOutlineSettings;
-
-            UpdateOutlineSettings();
-        }
-
         public void EnableOutline()
         {
             foreach (var renderer in renderers)
@@ -58,6 +41,23 @@ namespace Arys.BetterInteractions
                 materials.Remove(fillMaterial);
                 renderer.materials = [.. materials];
             }
+        }
+
+        private void Awake()
+        {
+            renderers = GetComponentsInChildren<Renderer>();
+
+            maskMaterial = new Material(Plugin.LootItemMaskShader);
+            fillMaterial = new Material(Plugin.LootItemFillShader);
+
+            maskMaterial.SetFloat(zTestId, (float)CompareFunction.Always);
+            fillMaterial.SetFloat(zTestId, (float)CompareFunction.LessEqual);
+
+            LoadSmoothNormals();
+
+            Plugin.Configuration.SettingChanged += UpdateOutlineSettings;
+
+            UpdateOutlineSettings();
         }
 
         private void OnDestroy()

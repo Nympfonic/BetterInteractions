@@ -39,11 +39,11 @@ namespace Arys.BetterInteractions.Patches
                 // Disable cached component outline if it is not the current one
                 if (Plugin.CachedOutlineComponent is not null && Plugin.CachedOutlineComponent != component)
                 {
-                    Plugin.CachedOutlineComponent.enabled = false;
+                    Plugin.CachedOutlineComponent.DisableOutline();
                 }
 
                 Plugin.CachedOutlineComponent = component;
-                Plugin.CachedOutlineComponent.enabled = true;
+                Plugin.CachedOutlineComponent.EnableOutline();
 
                 return;
             }
@@ -51,7 +51,7 @@ namespace Arys.BetterInteractions.Patches
             // Disable cached interactable outline if no results
             if (interactable is null && Plugin.CachedOutlineComponent is not null)
             {
-                Plugin.CachedOutlineComponent.enabled = false;
+                Plugin.CachedOutlineComponent.DisableOutline();
                 Plugin.CachedOutlineComponent = null;
             }
 
@@ -107,7 +107,7 @@ namespace Arys.BetterInteractions.Patches
                 }
 
                 Plugin.CachedOutlineComponent = nearestInteractable.GetAddComponent<BetterInteractionsOutline>();
-                Plugin.CachedOutlineComponent.enabled = true;
+                Plugin.CachedOutlineComponent.EnableOutline();
             }
         }
     }
