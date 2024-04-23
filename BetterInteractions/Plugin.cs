@@ -1,4 +1,7 @@
-﻿using Arys.BetterInteractions.Patches;
+﻿#if DEBUG
+using Arys.BetterInteractions.Helper.Debug;
+#endif
+using Arys.BetterInteractions.Patches;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
@@ -11,6 +14,9 @@ namespace Arys.BetterInteractions
     [BepInPlugin("com.Arys.BetterInteractions", "Arys' Better Interactions", "1.0.0")]
     public class Plugin : BaseUnityPlugin
     {
+#if DEBUG
+        internal const string SECTION_DEBUG = "Debugging";
+#endif
         internal const string SECTION_INTERACTABLES = "Interactables";
 
         internal static string Directory;
@@ -23,8 +29,12 @@ namespace Arys.BetterInteractions
         internal static Collider[] CachedDetectedColliders = null;
         internal static BetterInteractionsOutline CachedOutlineComponent = null;
 
+#if DEBUG
+        // Debug
+        internal static ConfigEntry<GizmoMode> DebugRaycast;
+#endif
         // Item interactions
-        internal static ConfigEntry<float> InteractableOverlapSphereRadius;
+        internal static ConfigEntry<float> InteractableSphereRadius;
         // Outline
         internal static ConfigEntry<Color> InteractableOutlineColour;
         internal static ConfigEntry<float> InteractableOutlineWidth;
@@ -44,7 +54,15 @@ namespace Arys.BetterInteractions
             LootItemMaskShader = LoadShader("assets/shaders/betterinteractions_outlinemask.shader", shadersPath);
             LootItemFillShader = LoadShader("assets/shaders/betterinteractions_outlinefill.shader", shadersPath);
 
-            InteractableOverlapSphereRadius = Config.Bind(
+#if DEBUG
+            DebugRaycast = Config.Bind(
+                SECTION_DEBUG,
+                "Debug Raycasts",
+                GizmoMode.Off
+            );
+#endif
+
+            InteractableSphereRadius = Config.Bind(
                 SECTION_INTERACTABLES,
                 "Sphere Detection Radius",
                 0.2f,

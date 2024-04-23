@@ -1,5 +1,8 @@
 ﻿using Aki.Reflection.Patching;
 using Arys.BetterInteractions.Helper;
+#if DEBUG
+using Arys.BetterInteractions.Helper.Debug;
+#endif
 using EFT;
 using EFT.Interactive;
 using HarmonyLib;
@@ -63,8 +66,8 @@ namespace Arys.BetterInteractions.Patches
             if (
                 Physics.Raycast(ray, out RaycastHit hit, __instance.RayLength, _gameWorldLayer1)
                 && Physics.OverlapSphereNonAlloc(
-                    hit.point + (hit.point - ray.origin) * __instance.RayLength,
-                    Plugin.InteractableOverlapSphereRadius.Value,
+                    hit.point,
+                    Plugin.InteractableSphereRadius.Value,
                     Plugin.CachedDetectedColliders,
                     _gameWorldLayer1
                 ) > 0
@@ -109,6 +112,18 @@ namespace Arys.BetterInteractions.Patches
                 Plugin.CachedOutlineComponent = nearestInteractable.GetAddComponent<BetterInteractionsOutline>();
                 Plugin.CachedOutlineComponent.EnableOutline();
             }
+
+#if DEBUG
+            switch (Plugin.DebugRaycast.Value)
+            {
+                case GizmoMode.RaycastHit:
+                    GizmoHelper.DrawGizmo(hit.point, 0.01f);
+                    break;
+                case GizmoMode.OverlapSphere:
+                    GizmoHelper.DrawGizmo(hit.point, Plugin.InteractableSphereRadius.Value);
+                    break;
+            }
+#endif
         }
     }
 }

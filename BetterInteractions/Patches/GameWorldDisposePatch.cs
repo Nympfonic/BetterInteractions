@@ -1,4 +1,5 @@
 ﻿using Aki.Reflection.Patching;
+using Arys.BetterInteractions.Helper.Debug;
 using EFT;
 using HarmonyLib;
 using System.Reflection;
@@ -16,6 +17,7 @@ namespace Arys.BetterInteractions.Patches
         private static void PostfixPatch()
         {
             BetterInteractionsOutline.RegisteredMeshes.Clear();
+            GizmoHelper.DestroyGizmo();
         }
     }
 }
