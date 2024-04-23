@@ -1,14 +1,115 @@
-﻿using BepInEx;
+﻿using Arys.BetterInteractions.Patches;
+using BepInEx;
+using BepInEx.Configuration;
+using BepInEx.Logging;
+using System.IO;
+using System.Reflection;
+using UnityEngine;
 
-namespace BetterInteractions
+namespace Arys.BetterInteractions
 {
-    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin("com.Arys.BetterInteractions", "Arys' Better Interactions", "1.0.0")]
     public class Plugin : BaseUnityPlugin
     {
+        internal const string SECTION_INTERACTABLES = "Interactables";
+
+        internal static string Directory;
+        internal static ManualLogSource LogSource;
+        internal static ConfigFile Configuration;
+
+        internal static Shader LootItemMaskShader;
+        internal static Shader LootItemFillShader;
+
+        internal static Collider[] CachedDetectedColliders = new Collider[30];
+        internal static BetterInteractionsOutline CachedOutlineComponent = null;
+
+        // Item interactions
+        internal static ConfigEntry<float> InteractableOverlapSphereRadius;
+        // Outline
+        internal static ConfigEntry<Color> InteractableOutlineColour;
+        internal static ConfigEntry<float> InteractableOutlineWidth;
+        // Outline toggles
+        internal static ConfigEntry<bool> LootItemOutlineEnabled;
+        internal static ConfigEntry<bool> LootContainerOutlineEnabled;
+        internal static ConfigEntry<bool> SwitchOutlineEnabled;
+        internal static ConfigEntry<bool> DoorOutlineEnabled;
+
         private void Awake()
         {
-            // Plugin startup logic
-            Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+            Configuration = Config;
+            LogSource = Logger;
+            Directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            string shadersPath = $"{Directory}\\arys_betterinteractions_shaders";
+            LootItemMaskShader = LoadShader("assets/shaders/betterinteractions_outlinemask.shader", shadersPath);
+            LootItemFillShader = LoadShader("assets/shaders/betterinteractions_outlinefill.shader", shadersPath);
+
+            InteractableOverlapSphereRadius = Config.Bind(
+                SECTION_INTERACTABLES,
+                "Sphere Detection Radius",
+                0.2f,
+                new ConfigDescription(
+                    "The radius of the sphere which detects interactables",
+                    new AcceptableValueRange<float>(0.05f, 0.2f)
+                )
+            );
+
+            InteractableOutlineColour = Config.Bind(
+                SECTION_INTERACTABLES,
+                "Outline Color",
+                Color.white,
+                new ConfigDescription("The outline color of the interactable you're looking at")
+            );
+
+            InteractableOutlineWidth = Config.Bind(
+                SECTION_INTERACTABLES,
+                "Outline Width",
+                2f,
+                new ConfigDescription(
+                    "The outline width of the interactable you're looking at",
+                    new AcceptableValueRange<float>(0.1f, 2f)
+                )
+            );
+
+            LootItemOutlineEnabled = Config.Bind(
+                SECTION_INTERACTABLES,
+                "Enabled for Loot Items",
+                true,
+                new ConfigDescription("Loot Items are loose loot you can find in the world")
+            );
+
+            LootContainerOutlineEnabled = Config.Bind(
+                SECTION_INTERACTABLES,
+                "Enabled for Loot Containers",
+                true,
+                new ConfigDescription("Loot Containers are any lootable containers")
+            );
+
+            SwitchOutlineEnabled = Config.Bind(
+                SECTION_INTERACTABLES,
+                "Enabled for Switches",
+                true,
+                new ConfigDescription("Switches are any switches/levers you can flip, like the power switch on Reserve")
+            );
+
+            DoorOutlineEnabled = Config.Bind(
+                SECTION_INTERACTABLES,
+                "Enabled for Doors",
+                true,
+                new ConfigDescription("Self-explanatory; Doors are doors, they scare DrakiaXYZ")
+            );
+
+            new GameWorldRegisterLootPatch().Enable();
+            new PlayerInteractionRaycastPatch().Enable();
+            new PlayerDisposePatch().Enable();
+        }
+
+        private static Shader LoadShader(string shaderName, string bundlePath)
+        {
+            AssetBundle assetBundle = AssetBundle.LoadFromFile(bundlePath);
+            Shader shader = assetBundle.LoadAsset<Shader>(shaderName);
+            assetBundle.Unload(false);
+            return shader;
         }
     }
 }
