@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Arys.BetterInteractions
+namespace Arys.BetterInteractions.Components
 {
     [DisallowMultipleComponent]
     public class BetterInteractionsOutline : MonoBehaviour
