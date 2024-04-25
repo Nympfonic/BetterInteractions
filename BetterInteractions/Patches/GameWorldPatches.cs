@@ -12,7 +12,7 @@ namespace Arys.BetterInteractions.Patches
     internal class GameWorldPatches
     {
         // GameWorld.RegisterLoot
-        internal class AddOutlines : ModulePatch
+        internal class AddOutlineToRegisteredLootable : ModulePatch
         {
             protected override MethodBase GetTargetMethod()
             {
@@ -27,6 +27,7 @@ namespace Arys.BetterInteractions.Patches
             private static void PatchPostfix(object loot)
             {
                 // Add BetterInteractionsOutline component to mod-enabled lootable objects
+                // When players/bots are killed, they are turned into corpses and are registered through this patched method
                 if (InteractionsHelper.IsEnabledInteractable(loot as InteractableObject))
                 {
                     (loot as InteractableObject).gameObject.AddComponent<BetterInteractionsOutline>();
@@ -35,9 +36,10 @@ namespace Arys.BetterInteractions.Patches
         }
 
         // GameWorld.OnGameStarted
-        internal class AddPhysicsToDoors : ModulePatch
+        internal class AddComponentsToInteractables : ModulePatch
         {
-            private static readonly FieldInfo _worldInteractiveObjectsField = AccessTools.DeclaredField(typeof(GameWorld), "worldInteractiveObject_0");
+            private static readonly FieldInfo _worldInteractiveObjectsField = AccessTools.DeclaredField(typeof(World), "worldInteractiveObject_0");
+            private static readonly FieldInfo _handleField = AccessTools.DeclaredField(typeof(WorldInteractiveObject), "_handle");
 
             protected override MethodBase GetTargetMethod()
             {
@@ -47,20 +49,28 @@ namespace Arys.BetterInteractions.Patches
             [PatchPostfix]
             private static void PatchPostfix(GameWorld __instance)
             {
-                var allWorldInteractives = _worldInteractiveObjectsField.GetValue(__instance) as WorldInteractiveObject[];
+                var allWorldInteractives = _worldInteractiveObjectsField.GetValue(__instance.World_0) as WorldInteractiveObject[];
 
                 for (int i = allWorldInteractives.Length - 1; i >= 0; i--)
                 {
-                    var interactive = allWorldInteractives[i];
+                    WorldInteractiveObject interactive = allWorldInteractives[i];
 
-                    if (
-                        interactive is Door door
-                        && interactive is not DoorSwitch
-                        && interactive is not SlidingDoor
-                    )
+                    // Add outline to all baked world interactive objects
+                    interactive.gameObject.AddComponent<BetterInteractionsOutline>();
+
+                    if (Plugin.DoorPhysicsEnabled.Value && (interactive is not DoorSwitch || interactive is not SlidingDoor))
                     {
-                        var component = door.gameObject.AddComponent<BetterInteractionsPhysicsDoor>();
+                        // Add physics to normal doors only
+                        var component = interactive.gameObject.AddComponent<BetterInteractionsPhysicsDoor>();
                         Plugin.CachedPhysicsDoors.Add(component);
+                    }
+                    
+                    // Door handles are not attached to Door game objects so we get the reference via the _handle field
+                    var handle = _handleField.GetValue(interactive) as DoorHandle;
+                    if (handle != null)
+                    {
+                        // Add outline to door handles
+                        handle.gameObject.AddComponent<BetterInteractionsOutline>();
                     }
                 }
             }

@@ -36,8 +36,6 @@ namespace Arys.BetterInteractions
         internal static readonly Collider[] CachedDetectedColliders = new Collider[30];
         internal static readonly HashSet<BetterInteractionsPhysicsDoor> CachedPhysicsDoors = [];
 
-        private readonly GameWorldPatches.AddPhysicsToDoors _addPhysicsToDoors = new();
-
 #if DEBUG
         // Debug
         internal static ConfigEntry<GizmoMode> DebugRaycast;
@@ -68,30 +66,11 @@ namespace Arys.BetterInteractions
 
             InitConfigBindings();
 
-            new GameWorldPatches.AddOutlines().Enable();
-            _addPhysicsToDoors.Enable();
+            new GameWorldPatches.AddOutlineToRegisteredLootable().Enable();
+            new GameWorldPatches.AddComponentsToInteractables().Enable();
             new GameWorldPatches.ClearStatics().Enable();
             new PlayerPatches.CustomInteractionCheck().Enable();
             new GetActionsClassPatches.AddPeekAction().Enable();
-
-            DoorPhysicsEnabled.SettingChanged += DoorPhysicsSettingChanged;
-        }
-
-        private void DoorPhysicsSettingChanged(object sender, EventArgs e)
-        {
-            if (Singleton<GameWorld>.Instantiated)
-            {
-                return;
-            }
-
-            if (DoorPhysicsEnabled.Value)
-            {
-                _addPhysicsToDoors.Enable();
-            }
-            else
-            {
-                _addPhysicsToDoors.Disable();
-            }
         }
 
         private void InitConfigBindings()
@@ -117,7 +96,7 @@ namespace Arys.BetterInteractions
                 new ConfigDescription(
                     "The radius of the sphere which detects interactables",
                     new AcceptableValueRange<float>(0.05f, 0.5f),
-                    new ConfigurationManagerAttributes { Order = 1 }
+                    new ConfigurationManagerAttributes { Order = 7 }
                 )
             );
 
@@ -128,7 +107,7 @@ namespace Arys.BetterInteractions
                 new ConfigDescription(
                     "The outline color of the interactable you're looking at",
                     null,
-                    new ConfigurationManagerAttributes { Order = 2 }
+                    new ConfigurationManagerAttributes { Order = 6 }
                 )
             );
 
@@ -139,7 +118,7 @@ namespace Arys.BetterInteractions
                 new ConfigDescription(
                     "The outline width of the interactable you're looking at",
                     new AcceptableValueRange<float>(0.1f, 2f),
-                    new ConfigurationManagerAttributes { Order = 3 }
+                    new ConfigurationManagerAttributes { Order = 5 }
                 )
             );
 
@@ -161,7 +140,7 @@ namespace Arys.BetterInteractions
                 new ConfigDescription(
                     "Loot Containers are any lootable containers and car trunks",
                     null,
-                    new ConfigurationManagerAttributes { Order = 5 }
+                    new ConfigurationManagerAttributes { Order = 3 }
                 )
             );
 
@@ -172,7 +151,7 @@ namespace Arys.BetterInteractions
                 new ConfigDescription(
                     "Switches are any switches/levers you can flip, like the power switch on Reserve",
                     null,
-                    new ConfigurationManagerAttributes { Order = 6 }
+                    new ConfigurationManagerAttributes { Order = 2 }
                 )
             );
 
@@ -183,7 +162,7 @@ namespace Arys.BetterInteractions
                 new ConfigDescription(
                     "Self-explanatory; Doors are doors, they scare DrakiaXYZ",
                     null,
-                    new ConfigurationManagerAttributes { Order = 7 }
+                    new ConfigurationManagerAttributes { Order = 1 }
                 )
             );
             #endregion

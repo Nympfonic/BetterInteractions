@@ -2,8 +2,12 @@
 // Source Repository: https://github.com/chrisnolet/QuickOutline
 
 using BepInEx.Configuration;
+using EFT;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -18,58 +22,84 @@ namespace Arys.BetterInteractions.Components
         private static readonly int colorId = Shader.PropertyToID("_OutlineColor");
         private static readonly int widthId = Shader.PropertyToID("_OutlineWidth");
 
-        private Renderer[] renderers;
-        private Material maskMaterial;
-        private Material fillMaterial;
+        private Renderer[] _renderers;
+        private Material _maskMaterial;
+        private Material _fillMaterial;
+        private bool _isInitialised = false;
+        private Coroutine _initialisationCoroutine;
 
-        public void EnableOutline()
+        public void ToggleOutline(bool enabled)
         {
-            foreach (var renderer in renderers)
+            void action()
             {
-                var materials = renderer.sharedMaterials.ToList();
-                materials.Add(maskMaterial);
-                materials.Add(fillMaterial);
-                renderer.materials = [.. materials];
+                foreach (var renderer in _renderers)
+                {
+                    var materials = renderer.sharedMaterials.ToList();
+                    if (enabled)
+                    {
+                        materials.Add(_maskMaterial);
+                        materials.Add(_fillMaterial);
+                    }
+                    else
+                    {
+                        materials.Remove(_maskMaterial);
+                        materials.Remove(_fillMaterial);
+                    }
+                    renderer.materials = [.. materials];
+                }
             }
-        }
 
-        public void DisableOutline()
-        {
-            foreach (var renderer in renderers)
+            if (IsInitialised())
             {
-                var materials = renderer.sharedMaterials.ToList();
-                materials.Remove(maskMaterial);
-                materials.Remove(fillMaterial);
-                renderer.materials = [.. materials];
+                action();
+            }
+            else
+            {
+                _initialisationCoroutine = StaticManager.BeginCoroutine(DoAfterInitialisation(action));
             }
         }
 
         private void Awake()
         {
-            renderers = GetComponentsInChildren<Renderer>();
+            _renderers = GetComponentsInChildren<Renderer>();
 
-            maskMaterial = new Material(Plugin.LootItemMaskShader);
-            fillMaterial = new Material(Plugin.LootItemFillShader);
+            _maskMaterial = new Material(Plugin.LootItemMaskShader);
+            _fillMaterial = new Material(Plugin.LootItemFillShader);
 
-            maskMaterial.SetFloat(zTestId, (float)CompareFunction.Always);
-            fillMaterial.SetFloat(zTestId, (float)CompareFunction.LessEqual);
+            _maskMaterial.SetFloat(zTestId, (float)CompareFunction.Always);
+            _fillMaterial.SetFloat(zTestId, (float)CompareFunction.LessEqual);
 
-            LoadSmoothNormals();
+            Task.Run(LoadSmoothNormalsAsync);
 
             Plugin.Configuration.SettingChanged += UpdateOutlineSettings;
 
             UpdateOutlineSettings();
+
+            _isInitialised = true;
         }
 
         private void OnDestroy()
         {
+            StaticManager.KillCoroutine(ref _initialisationCoroutine);
             Plugin.Configuration.SettingChanged -= UpdateOutlineSettings;
-            Destroy(maskMaterial);
-            Destroy(fillMaterial);
+            Destroy(_maskMaterial);
+            Destroy(_fillMaterial);
+        }
+
+        private bool IsInitialised()
+        {
+            return _isInitialised;
+        }
+
+        private IEnumerator DoAfterInitialisation(Action action)
+        {
+            yield return new WaitUntil(IsInitialised);
+
+            action();
         }
 
         // Retrieve or generate smooth normals
-        private void LoadSmoothNormals()
+        private async Task LoadSmoothNormalsAsync()
         {
             foreach (var meshFilter in GetComponentsInChildren<MeshFilter>())
             {
@@ -80,7 +110,7 @@ namespace Arys.BetterInteractions.Components
                 }
 
                 // Retrieve or generate smooth normals
-                var smoothNormals = SmoothNormals(meshFilter.sharedMesh);
+                var smoothNormals = await SmoothNormalsAsync(meshFilter.sharedMesh);
 
                 // Store smooth normals in UV3
                 meshFilter.sharedMesh.SetUVs(3, smoothNormals);
@@ -111,7 +141,7 @@ namespace Arys.BetterInteractions.Components
             }
         }
 
-        private List<Vector3> SmoothNormals(Mesh mesh)
+        private async Task<List<Vector3>> SmoothNormalsAsync(Mesh mesh)
         {
             // Group vertices by location
             var groups = mesh.vertices
@@ -122,30 +152,33 @@ namespace Arys.BetterInteractions.Components
             var smoothNormals = new List<Vector3>(mesh.normals);
 
             // Average normals for grouped vertices
-            foreach (var group in groups)
+            await Task.Run(() =>
             {
-                // Skip single vertices
-                if (group.Count() == 1)
+                foreach (var group in groups)
                 {
-                    continue;
+                    // Skip single vertices
+                    if (group.Count() == 1)
+                    {
+                        continue;
+                    }
+
+                    // Calculate the average normal
+                    var smoothNormal = Vector3.zero;
+
+                    foreach (var pair in group)
+                    {
+                        smoothNormal += smoothNormals[pair.Value];
+                    }
+
+                    smoothNormal.Normalize();
+
+                    // Assign smooth normal to each vertex
+                    foreach (var pair in group)
+                    {
+                        smoothNormals[pair.Value] = smoothNormal;
+                    }
                 }
-
-                // Calculate the average normal
-                var smoothNormal = Vector3.zero;
-
-                foreach (var pair in group)
-                {
-                    smoothNormal += smoothNormals[pair.Value];
-                }
-
-                smoothNormal.Normalize();
-
-                // Assign smooth normal to each vertex
-                foreach (var pair in group)
-                {
-                    smoothNormals[pair.Value] = smoothNormal;
-                }
-            }
+            });
 
             return smoothNormals;
         }
@@ -171,8 +204,8 @@ namespace Arys.BetterInteractions.Components
 
         private void UpdateOutlineSettings()
         {
-            fillMaterial.SetColor(colorId, Plugin.InteractableOutlineColour.Value);
-            fillMaterial.SetFloat(widthId, Plugin.InteractableOutlineWidth.Value);
+            _fillMaterial.SetColor(colorId, Plugin.InteractableOutlineColour.Value);
+            _fillMaterial.SetFloat(widthId, Plugin.InteractableOutlineWidth.Value);
         }
 
         private void UpdateOutlineSettings(object sender, SettingChangedEventArgs e)
