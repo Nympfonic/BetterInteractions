@@ -70,31 +70,41 @@ namespace Arys.BetterInteractions.Components
         // Retrieve or generate smooth normals
         private void LoadSmoothNormals()
         {
-            foreach (var meshFilter in GetComponentsInChildren<MeshFilter>())
+            var meshFilters = GetComponentsInChildren<MeshFilter>();
+            if (meshFilters is not null)
             {
-                // Skip if mesh is unreadable or smooth normals have already been adopted
-                if (!meshFilter.sharedMesh.isReadable || !RegisteredMeshes.Add(meshFilter.sharedMesh))
+                foreach (var meshFilter in meshFilters)
                 {
-                    continue;
-                }
+                    // Skip if mesh is unreadable or smooth normals have already been adopted
+                    if (!meshFilter.sharedMesh.isReadable || !RegisteredMeshes.Add(meshFilter.sharedMesh))
+                    {
+                        continue;
+                    }
 
-                // Retrieve or generate smooth normals
-                var smoothNormals = SmoothNormals(meshFilter.sharedMesh);
+                    // Retrieve or generate smooth normals
+                    var smoothNormals = SmoothNormals(meshFilter.sharedMesh);
 
-                // Store smooth normals in UV3
-                meshFilter.sharedMesh.SetUVs(3, smoothNormals);
+                    // Store smooth normals in UV3
+                    meshFilter.sharedMesh.SetUVs(3, smoothNormals);
 
-                // Combine submeshes
-                var renderer = meshFilter.GetComponent<Renderer>();
+                    // Combine submeshes
+                    var renderer = meshFilter.GetComponent<Renderer>();
 
-                if (renderer != null)
-                {
-                    CombineSubmeshes(meshFilter.sharedMesh, renderer.sharedMaterials);
+                    if (renderer != null)
+                    {
+                        CombineSubmeshes(meshFilter.sharedMesh, renderer.sharedMaterials);
+                    }
                 }
             }
 
             // Clear UV3 on skinned mesh renderers
-            foreach (var skinnedMeshRenderer in GetComponentsInChildren<SkinnedMeshRenderer>())
+            var skinnedMeshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
+            if (skinnedMeshRenderers is null)
+            {
+                return;
+            }
+
+            foreach (var skinnedMeshRenderer in skinnedMeshRenderers)
             {
                 // Skip if mesh is unreadable or UV3 has already been reset
                 if (!skinnedMeshRenderer.sharedMesh.isReadable || !RegisteredMeshes.Add(skinnedMeshRenderer.sharedMesh))

@@ -35,7 +35,7 @@ namespace Arys.BetterInteractions.Patches
                     return;
                 }
 
-                var biController = BetterInteractionsManager.Instance;
+                var biManager = BetterInteractionsManager.Instance;
 
                 InteractableObject interactable = __instance.InteractableObject;
 
@@ -45,22 +45,22 @@ namespace Arys.BetterInteractions.Patches
                     var component = interactable.GetAddComponent<BetterInteractionsOutline>();
 
                     // Disable cached component outline if it is not the current one
-                    if (biController.CachedOutlineComponent != null && biController.CachedOutlineComponent != component)
+                    if (biManager.CachedOutlineComponent != null && biManager.CachedOutlineComponent != component)
                     {
-                        biController.CachedOutlineComponent.DisableOutline();
+                        biManager.CachedOutlineComponent.DisableOutline();
                     }
 
-                    biController.CachedOutlineComponent = component;
-                    biController.CachedOutlineComponent.EnableOutline();
+                    biManager.CachedOutlineComponent = component;
+                    biManager.CachedOutlineComponent.EnableOutline();
 
                     return;
                 }
 
                 // Disable cached interactable outline if no results
-                if (interactable is null && biController.CachedOutlineComponent != null)
+                if (interactable is null && biManager.CachedOutlineComponent != null)
                 {
-                    biController.CachedOutlineComponent.DisableOutline();
-                    biController.CachedOutlineComponent = null;
+                    biManager.CachedOutlineComponent.DisableOutline();
+                    biManager.CachedOutlineComponent = null;
                 }
 
                 Ray ray = __instance.InteractionRay;
@@ -71,16 +71,16 @@ namespace Arys.BetterInteractions.Patches
                     && Physics.OverlapSphereNonAlloc(
                         hit.point,
                         Plugin.InteractableSphereRadius.Value,
-                        biController.CachedDetectedColliders,
+                        biManager.CachedDetectedColliders,
                         _gameWorldLayer1
                     ) > 0
                 )
                 {
                     InteractableObject nearestInteractable = null;
 
-                    for (int i = 0; i < biController.CachedDetectedColliders.Length; i++)
+                    for (int i = 0; i < biManager.CachedDetectedColliders.Length; i++)
                     {
-                        Collider detectedCollider = biController.CachedDetectedColliders[i];
+                        Collider detectedCollider = biManager.CachedDetectedColliders[i];
 
                         if (detectedCollider is null)
                         {
@@ -112,8 +112,8 @@ namespace Arys.BetterInteractions.Patches
                         return;
                     }
 
-                    biController.CachedOutlineComponent = nearestInteractable.GetAddComponent<BetterInteractionsOutline>();
-                    biController.CachedOutlineComponent.EnableOutline();
+                    biManager.CachedOutlineComponent = nearestInteractable.GetAddComponent<BetterInteractionsOutline>();
+                    biManager.CachedOutlineComponent.EnableOutline();
                 }
 
 #if DEBUG

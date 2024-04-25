@@ -12,7 +12,6 @@ using UnityEngine;
 namespace Arys.BetterInteractions
 {
     [BepInPlugin("com.Arys.BetterInteractions", "Arys' Better Interactions", "1.0.0")]
-    [BepInDependency("com.UniTask.UniTask")]
     public class Plugin : BaseUnityPlugin
     {
 #if DEBUG
@@ -63,6 +62,7 @@ namespace Arys.BetterInteractions
             new GameWorldPatches.AddPhysicsToDoors().Enable();
             new GameWorldPatches.ClearStatics().Enable();
             new PlayerPatches.CustomInteractionCheck().Enable();
+            new GetActionsClassPatches.AddPeekAction().Enable();
         }
 
         private void InitConfigBindings()
@@ -130,7 +130,7 @@ namespace Arys.BetterInteractions
                 "Enabled for Loot Containers",
                 true,
                 new ConfigDescription(
-                    "Loot Containers are any lootable containers",
+                    "Loot Containers are any lootable containers and car trunks",
                     null,
                     new ConfigurationManagerAttributes { Order = 5 }
                 )

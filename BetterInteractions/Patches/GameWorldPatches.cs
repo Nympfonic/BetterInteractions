@@ -64,12 +64,8 @@ namespace Arys.BetterInteractions.Patches
                     && worldInteractiveObject is not SlidingDoor
                 )
                 {
-                    var rigidbody = door.gameObject.AddComponent<Rigidbody>();
-                    // Rigidbody needs to be added to Tarkov's managed rigidbodies otherwise they will not work
-                    PhysicsHelper.SupportRigidbody(rigidbody, 0f);
-
-                    door.gameObject.AddComponent<HingeJoint>();
-                    door.gameObject.AddComponent<BetterInteractionsPhysicsDoor>();
+                    var component = door.gameObject.AddComponent<BetterInteractionsPhysicsDoor>();
+                    BetterInteractionsManager.Instance.CachedPhysicsDoors.Add(component);
                 }
             }
         }

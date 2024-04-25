@@ -1,4 +1,5 @@
-﻿using EFT.Interactive;
+﻿using Arys.BetterInteractions.Helper;
+using EFT.Interactive;
 using UnityEngine;
 
 namespace Arys.BetterInteractions.Components
@@ -10,18 +11,20 @@ namespace Arys.BetterInteractions.Components
         private Rigidbody _rigidbody;
         private HingeJoint _hingeJoint;
 
-        public void TogglePhysics()
+        public void TogglePhysics(EDoorState doorState)
         {
-            _rigidbody.isKinematic = !(_door is not KeycardDoor && _door.DoorState == EDoorState.Open);
+            _rigidbody.isKinematic = doorState != EDoorState.Open;
         }
 
         private void Awake()
         {
             _door = GetComponent<Door>();
-            _rigidbody = GetComponent<Rigidbody>();
-            _hingeJoint = GetComponent<HingeJoint>();
+            _rigidbody = gameObject.AddComponent<Rigidbody>();
+            // Rigidbody needs to be added to Tarkov's managed rigidbodies otherwise they will not work
+            PhysicsHelper.SupportRigidbody(_rigidbody, 0f);
+            _hingeJoint = gameObject.AddComponent<HingeJoint>();
             
-            TogglePhysics();
+            TogglePhysics(_door.DoorState);
 
             _door.OnDoorStateChanged += DoorStateChangedPhysicsCheck;
 
@@ -55,7 +58,7 @@ namespace Arys.BetterInteractions.Components
                 return;
             }
 
-            TogglePhysics();
+            TogglePhysics(nextState);
         }
     }
 }
