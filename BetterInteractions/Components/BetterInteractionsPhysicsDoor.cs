@@ -53,7 +53,7 @@ namespace Arys.BetterInteractions.Components
 
         private void DoorStateChangedPhysicsCheck(WorldInteractiveObject obj, EDoorState prevState, EDoorState nextState)
         {
-            if (obj != this)
+            if (obj != _door)
             {
                 return;
             }

@@ -1,6 +1,7 @@
 ﻿// Thanks to Chris Nolet for his QuickOutline project
 // Source Repository: https://github.com/chrisnolet/QuickOutline
 
+using BepInEx.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -70,41 +71,31 @@ namespace Arys.BetterInteractions.Components
         // Retrieve or generate smooth normals
         private void LoadSmoothNormals()
         {
-            var meshFilters = GetComponentsInChildren<MeshFilter>();
-            if (meshFilters is not null)
+            foreach (var meshFilter in GetComponentsInChildren<MeshFilter>())
             {
-                foreach (var meshFilter in meshFilters)
+                // Skip if mesh is unreadable or smooth normals have already been adopted
+                if (!meshFilter.sharedMesh.isReadable || !RegisteredMeshes.Add(meshFilter.sharedMesh))
                 {
-                    // Skip if mesh is unreadable or smooth normals have already been adopted
-                    if (!meshFilter.sharedMesh.isReadable || !RegisteredMeshes.Add(meshFilter.sharedMesh))
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    // Retrieve or generate smooth normals
-                    var smoothNormals = SmoothNormals(meshFilter.sharedMesh);
+                // Retrieve or generate smooth normals
+                var smoothNormals = SmoothNormals(meshFilter.sharedMesh);
 
-                    // Store smooth normals in UV3
-                    meshFilter.sharedMesh.SetUVs(3, smoothNormals);
+                // Store smooth normals in UV3
+                meshFilter.sharedMesh.SetUVs(3, smoothNormals);
 
-                    // Combine submeshes
-                    var renderer = meshFilter.GetComponent<Renderer>();
+                // Combine submeshes
+                var renderer = meshFilter.GetComponent<Renderer>();
 
-                    if (renderer != null)
-                    {
-                        CombineSubmeshes(meshFilter.sharedMesh, renderer.sharedMaterials);
-                    }
+                if (renderer != null)
+                {
+                    CombineSubmeshes(meshFilter.sharedMesh, renderer.sharedMaterials);
                 }
             }
 
             // Clear UV3 on skinned mesh renderers
-            var skinnedMeshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
-            if (skinnedMeshRenderers is null)
-            {
-                return;
-            }
-
-            foreach (var skinnedMeshRenderer in skinnedMeshRenderers)
+            foreach (var skinnedMeshRenderer in GetComponentsInChildren<SkinnedMeshRenderer>())
             {
                 // Skip if mesh is unreadable or UV3 has already been reset
                 if (!skinnedMeshRenderer.sharedMesh.isReadable || !RegisteredMeshes.Add(skinnedMeshRenderer.sharedMesh))
@@ -184,7 +175,7 @@ namespace Arys.BetterInteractions.Components
             fillMaterial.SetFloat(widthId, Plugin.InteractableOutlineWidth.Value);
         }
 
-        private void UpdateOutlineSettings(object sender, BepInEx.Configuration.SettingChangedEventArgs e)
+        private void UpdateOutlineSettings(object sender, SettingChangedEventArgs e)
         {
             if (e.ChangedSetting.Definition.Section == Plugin.SECTION_INTERACTABLES)
             {

@@ -6,26 +6,12 @@ using EFT;
 using EFT.Interactive;
 using HarmonyLib;
 using System.Reflection;
-using UnityEngine;
 
 namespace Arys.BetterInteractions.Patches
 {
     internal class GameWorldPatches
     {
-        internal class InitManager : ModulePatch
-        {
-            protected override MethodBase GetTargetMethod()
-            {
-                return AccessTools.DeclaredMethod(typeof(GameWorld), nameof(GameWorld.OnGameStarted));
-            }
-
-            [PatchPostfix]
-            private static void PatchPostfix()
-            {
-                new GameObject("BetterInteractions Controller").AddComponent<BetterInteractionsManager>();
-            }
-        }
-
+        // GameWorld.RegisterLoot
         internal class AddOutlines : ModulePatch
         {
             protected override MethodBase GetTargetMethod()
@@ -33,14 +19,14 @@ namespace Arys.BetterInteractions.Patches
                 return AccessTools.DeclaredMethod(
                     typeof(GameWorld),
                     nameof(GameWorld.RegisterLoot),
-                    generics: [ typeof(InteractableObject) ]
+                    generics: [typeof(InteractableObject)]
                 );
             }
 
             [PatchPostfix]
             private static void PatchPostfix(object loot)
             {
-                // Add BetterInteractionsOutline component to mod-enabled interactive objects
+                // Add BetterInteractionsOutline component to mod-enabled lootable objects
                 if (InteractionsHelper.IsEnabledInteractable(loot as InteractableObject))
                 {
                     (loot as InteractableObject).gameObject.AddComponent<BetterInteractionsOutline>();
@@ -48,28 +34,39 @@ namespace Arys.BetterInteractions.Patches
             }
         }
 
+        // GameWorld.OnGameStarted
         internal class AddPhysicsToDoors : ModulePatch
         {
+            private static readonly FieldInfo _worldInteractiveObjectsField = AccessTools.DeclaredField(typeof(GameWorld), "worldInteractiveObject_0");
+
             protected override MethodBase GetTargetMethod()
             {
-                return AccessTools.DeclaredMethod(typeof(GameWorld), nameof(GameWorld.RegisterWorldInteractionObject));
+                return AccessTools.DeclaredMethod(typeof(GameWorld), nameof(GameWorld.OnGameStarted));
             }
 
             [PatchPostfix]
-            private static void PatchPostfix(WorldInteractiveObject worldInteractiveObject)
+            private static void PatchPostfix(GameWorld __instance)
             {
-                if (
-                    worldInteractiveObject is Door door
-                    && worldInteractiveObject is not DoorSwitch
-                    && worldInteractiveObject is not SlidingDoor
-                )
+                var allWorldInteractives = _worldInteractiveObjectsField.GetValue(__instance) as WorldInteractiveObject[];
+
+                for (int i = allWorldInteractives.Length - 1; i >= 0; i--)
                 {
-                    var component = door.gameObject.AddComponent<BetterInteractionsPhysicsDoor>();
-                    BetterInteractionsManager.Instance.CachedPhysicsDoors.Add(component);
+                    var interactive = allWorldInteractives[i];
+
+                    if (
+                        interactive is Door door
+                        && interactive is not DoorSwitch
+                        && interactive is not SlidingDoor
+                    )
+                    {
+                        var component = door.gameObject.AddComponent<BetterInteractionsPhysicsDoor>();
+                        Plugin.CachedPhysicsDoors.Add(component);
+                    }
                 }
             }
         }
 
+        // GameWorld.Dispose
         internal class ClearStatics : ModulePatch
         {
             protected override MethodBase GetTargetMethod()
@@ -80,13 +77,10 @@ namespace Arys.BetterInteractions.Patches
             [PatchPrefix]
             private static void PrefixPatch()
             {
+                Plugin.CachedOutlineComponent = null;
+                Plugin.CachedPhysicsDoors.Clear();
                 BetterInteractionsOutline.RegisteredMeshes.Clear();
                 GizmoHelper.DestroyGizmo();
-
-                if (BetterInteractionsManager.Instance != null)
-                {
-                    Object.Destroy(BetterInteractionsManager.Instance);
-                }
             }
         }
     }

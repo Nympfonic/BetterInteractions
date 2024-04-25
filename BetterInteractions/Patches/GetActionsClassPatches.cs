@@ -33,6 +33,7 @@ namespace Arys.BetterInteractions.Patches
             {
                 List<ActionsTypesClass> actions = __result.Actions;
 
+                // If door is shut, add Peek action
                 if (door.DoorState == EDoorState.Shut)
                 {
                     // For compatibility sake, if there is already a Peek action added by some other mod, then don't add Peek action
@@ -56,6 +57,7 @@ namespace Arys.BetterInteractions.Patches
                         );
                     }
                 }
+                // If door is open but not fully, add Open Door action
                 else if (door.DoorState == EDoorState.Open
                     && door.CurrentAngle != door.OpenAngle
                     && door.CurrentAngle != door.CloseAngle)

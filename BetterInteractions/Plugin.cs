@@ -1,10 +1,15 @@
 ﻿#if DEBUG
+using Arys.BetterInteractions.Components;
 using Arys.BetterInteractions.Helper.Debug;
 #endif
 using Arys.BetterInteractions.Patches;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using Comfort.Common;
+using EFT;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
@@ -26,6 +31,12 @@ namespace Arys.BetterInteractions
 
         internal static Shader LootItemMaskShader;
         internal static Shader LootItemFillShader;
+
+        internal static BetterInteractionsOutline CachedOutlineComponent = null;
+        internal static readonly Collider[] CachedDetectedColliders = new Collider[30];
+        internal static readonly HashSet<BetterInteractionsPhysicsDoor> CachedPhysicsDoors = [];
+
+        private readonly GameWorldPatches.AddPhysicsToDoors _addPhysicsToDoors = new();
 
 #if DEBUG
         // Debug
@@ -57,12 +68,30 @@ namespace Arys.BetterInteractions
 
             InitConfigBindings();
 
-            new GameWorldPatches.InitManager().Enable();
             new GameWorldPatches.AddOutlines().Enable();
-            new GameWorldPatches.AddPhysicsToDoors().Enable();
+            _addPhysicsToDoors.Enable();
             new GameWorldPatches.ClearStatics().Enable();
             new PlayerPatches.CustomInteractionCheck().Enable();
             new GetActionsClassPatches.AddPeekAction().Enable();
+
+            DoorPhysicsEnabled.SettingChanged += DoorPhysicsSettingChanged;
+        }
+
+        private void DoorPhysicsSettingChanged(object sender, EventArgs e)
+        {
+            if (Singleton<GameWorld>.Instantiated)
+            {
+                return;
+            }
+
+            if (DoorPhysicsEnabled.Value)
+            {
+                _addPhysicsToDoors.Enable();
+            }
+            else
+            {
+                _addPhysicsToDoors.Disable();
+            }
         }
 
         private void InitConfigBindings()
@@ -119,7 +148,7 @@ namespace Arys.BetterInteractions
                 "Enabled for Loot Items",
                 true,
                 new ConfigDescription(
-                    "Loot Items are loose loot you can find in the world",
+                    "Loot Items are loose loot and corpses",
                     null,
                     new ConfigurationManagerAttributes { Order = 4 }
                 )
