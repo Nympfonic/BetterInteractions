@@ -1,5 +1,5 @@
-﻿#if DEBUG
-using Arys.BetterInteractions.Components;
+﻿using Arys.BetterInteractions.Components;
+#if DEBUG
 using Arys.BetterInteractions.Helper.Debug;
 #endif
 using Arys.BetterInteractions.Patches;
