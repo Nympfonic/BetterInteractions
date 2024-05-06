@@ -25,8 +25,8 @@ namespace Arys.BetterInteractions.Components
         private Renderer[] _renderers;
         private Material _maskMaterial;
         private Material _fillMaterial;
-        private bool _isInitialised = false;
         private Coroutine _initialisationCoroutine;
+        private bool _isInitialised = false;
 
         public void ToggleOutline(bool enabled)
         {
@@ -68,8 +68,11 @@ namespace Arys.BetterInteractions.Components
 
             _maskMaterial.SetFloat(zTestId, (float)CompareFunction.Always);
             _fillMaterial.SetFloat(zTestId, (float)CompareFunction.LessEqual);
+        }
 
-            Task.Run(LoadSmoothNormalsAsync);
+        private async void Start()
+        {
+            await LoadSmoothNormalsAsync();
 
             Plugin.Configuration.SettingChanged += UpdateOutlineSettings;
 

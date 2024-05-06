@@ -1,5 +1,6 @@
 ﻿using Aki.Reflection.Patching;
 using Arys.BetterInteractions.Components;
+using Arys.BetterInteractions.Controllers;
 using Arys.BetterInteractions.Helper;
 using Arys.BetterInteractions.Helper.Debug;
 using EFT;
@@ -36,7 +37,7 @@ namespace Arys.BetterInteractions.Patches
         }
 
         // GameWorld.OnGameStarted
-        internal class AddComponentsToInteractables : ModulePatch
+        internal class InitialiseComponents : ModulePatch
         {
             private static readonly FieldInfo _worldInteractiveObjectsField = AccessTools.DeclaredField(typeof(World), "worldInteractiveObject_0");
             private static readonly FieldInfo _handleField = AccessTools.DeclaredField(typeof(WorldInteractiveObject), "_handle");
@@ -49,6 +50,8 @@ namespace Arys.BetterInteractions.Patches
             [PatchPostfix]
             private static void PatchPostfix(GameWorld __instance)
             {
+                Plugin.OutlineController = new OutlineController();
+
                 var allWorldInteractives = _worldInteractiveObjectsField.GetValue(__instance.World_0) as WorldInteractiveObject[];
 
                 for (int i = allWorldInteractives.Length - 1; i >= 0; i--)
@@ -87,7 +90,9 @@ namespace Arys.BetterInteractions.Patches
             [PatchPrefix]
             private static void PrefixPatch()
             {
-                Plugin.CachedOutlineComponent = null;
+                Plugin.OutlineController.ClearCommandList();
+                Plugin.OutlineController = null;
+                //Plugin.CachedOutlineComponent = null;
                 Plugin.CachedPhysicsDoors.Clear();
                 BetterInteractionsOutline.RegisteredMeshes.Clear();
                 GizmoHelper.DestroyGizmo();

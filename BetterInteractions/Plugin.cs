@@ -1,4 +1,5 @@
 ﻿using Arys.BetterInteractions.Components;
+using Arys.BetterInteractions.Controllers;
 #if DEBUG
 using Arys.BetterInteractions.Helper.Debug;
 #endif
@@ -32,7 +33,8 @@ namespace Arys.BetterInteractions
         internal static Shader LootItemMaskShader;
         internal static Shader LootItemFillShader;
 
-        internal static BetterInteractionsOutline CachedOutlineComponent = null;
+        internal static OutlineController OutlineController = null;
+        //internal static BetterInteractionsOutline CachedOutlineComponent = null;
         internal static readonly Collider[] CachedDetectedColliders = new Collider[30];
         internal static readonly HashSet<BetterInteractionsPhysicsDoor> CachedPhysicsDoors = [];
 
@@ -67,7 +69,7 @@ namespace Arys.BetterInteractions
             InitConfigBindings();
 
             new GameWorldPatches.AddOutlineToRegisteredLootable().Enable();
-            new GameWorldPatches.AddComponentsToInteractables().Enable();
+            new GameWorldPatches.InitialiseComponents().Enable();
             new GameWorldPatches.ClearStatics().Enable();
             new PlayerPatches.CustomInteractionCheck().Enable();
             new GetActionsClassPatches.AddPeekAction().Enable();
