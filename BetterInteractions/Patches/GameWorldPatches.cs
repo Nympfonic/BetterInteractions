@@ -92,7 +92,6 @@ namespace Arys.BetterInteractions.Patches
             {
                 Plugin.OutlineController.ClearCommandList();
                 Plugin.OutlineController = null;
-                //Plugin.CachedOutlineComponent = null;
                 Plugin.CachedPhysicsDoors.Clear();
                 BetterInteractionsOutline.RegisteredMeshes.Clear();
                 GizmoHelper.DestroyGizmo();

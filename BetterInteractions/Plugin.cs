@@ -34,7 +34,6 @@ namespace Arys.BetterInteractions
         internal static Material OutlineFillMaterial;
 
         internal static OutlineController OutlineController = null;
-        //internal static BetterInteractionsOutline CachedOutlineComponent = null;
         internal static readonly Collider[] CachedDetectedColliders = new Collider[30];
         internal static readonly HashSet<BetterInteractionsPhysicsDoor> CachedPhysicsDoors = [];
 
