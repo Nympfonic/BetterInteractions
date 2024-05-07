@@ -44,8 +44,8 @@ namespace Arys.BetterInteractions
         // Interactions
         internal static ConfigEntry<float> InteractableSphereRadius;
         // Outline
-        internal static ConfigEntry<Color> InteractableOutlineColour;
-        internal static ConfigEntry<float> InteractableOutlineWidth;
+        internal static ConfigEntry<Color> OutlineColour;
+        internal static ConfigEntry<float> OutlineWidth;
         // Outline toggles
         internal static ConfigEntry<bool> LootItemOutlineEnabled;
         internal static ConfigEntry<bool> LootContainerOutlineEnabled;
@@ -105,7 +105,7 @@ namespace Arys.BetterInteractions
                 )
             );
 
-            InteractableOutlineColour = Config.Bind(
+            OutlineColour = Config.Bind(
                 SECTION_INTERACTABLES,
                 "Outline Color",
                 Color.white,
@@ -116,7 +116,7 @@ namespace Arys.BetterInteractions
                 )
             );
 
-            InteractableOutlineWidth = Config.Bind(
+            OutlineWidth = Config.Bind(
                 SECTION_INTERACTABLES,
                 "Outline Width",
                 2f,

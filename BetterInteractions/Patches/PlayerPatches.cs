@@ -39,8 +39,6 @@ namespace Arys.BetterInteractions.Patches
                 if (interactable == null)
                 {
                     Plugin.OutlineController.UndoCommand();
-                    //Plugin.CachedOutlineComponent.ToggleOutline(false);
-                    //Plugin.CachedOutlineComponent = null;
                 }
                 // Already have a result so we only need to enable outline
                 else if (InteractionsHelper.IsEnabledInteractable(interactable))
@@ -52,15 +50,6 @@ namespace Arys.BetterInteractions.Patches
                     var component = interactable.GetAddComponent<BetterInteractionsOutline>();
                     var command = new ToggleOutlineCommand(component);
                     Plugin.OutlineController.AddCommand(command);
-
-                    // Disable cached component outline if it is not the current one
-                    //if (Plugin.CachedOutlineComponent != null && Plugin.CachedOutlineComponent != component)
-                    //{
-                    //    Plugin.CachedOutlineComponent.ToggleOutline(false);
-                    //}
-
-                    //Plugin.CachedOutlineComponent = component;
-                    //Plugin.CachedOutlineComponent.ToggleOutline(true);
 
                     //return;
                 }

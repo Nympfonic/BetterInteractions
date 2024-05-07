@@ -207,8 +207,8 @@ namespace Arys.BetterInteractions.Components
 
         private void UpdateOutlineSettings()
         {
-            _fillMaterial.SetColor(colorId, Plugin.InteractableOutlineColour.Value);
-            _fillMaterial.SetFloat(widthId, Plugin.InteractableOutlineWidth.Value);
+            _fillMaterial.SetColor(colorId, Plugin.OutlineColour.Value);
+            _fillMaterial.SetFloat(widthId, Plugin.OutlineWidth.Value);
         }
 
         private void UpdateOutlineSettings(object sender, SettingChangedEventArgs e)
