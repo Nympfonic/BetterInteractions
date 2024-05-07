@@ -29,7 +29,7 @@ namespace Arys.BetterInteractions.Patches
             {
                 // Add BetterInteractionsOutline component to mod-enabled lootable objects
                 // When players/bots are killed, they are turned into corpses and are registered through this patched method
-                if (InteractionsHelper.IsEnabledInteractable(loot as InteractableObject))
+                if ((loot as InteractableObject).IsOutlineEnabled())
                 {
                     (loot as InteractableObject).gameObject.AddComponent<BetterInteractionsOutline>();
                 }
@@ -61,7 +61,7 @@ namespace Arys.BetterInteractions.Patches
                     // Add outline to all baked world interactive objects
                     interactive.gameObject.AddComponent<BetterInteractionsOutline>();
 
-                    if (Plugin.DoorPhysicsEnabled.Value && (interactive is not DoorSwitch || interactive is not SlidingDoor))
+                    if (Plugin.DoorPhysicsEnabled.Value && interactive is Door && interactive is not DoorSwitch && interactive is not SlidingDoor)
                     {
                         // Add physics to normal doors only
                         var component = interactive.gameObject.AddComponent<BetterInteractionsPhysicsDoor>();

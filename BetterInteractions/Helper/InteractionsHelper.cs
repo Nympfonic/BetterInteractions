@@ -1,6 +1,7 @@
 ﻿using EFT;
 using EFT.Interactive;
 using HarmonyLib;
+using System;
 using System.Reflection;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ namespace Arys.BetterInteractions.Helper
 {
     internal static class InteractionsHelper
     {
-        internal static bool IsEnabledInteractable(InteractableObject interactable)
+        internal static bool IsOutlineEnabled(this InteractableObject interactable)
         {
             return (Plugin.LootItemOutlineEnabled.Value && interactable is LootItem)
                 || (Plugin.LootContainerOutlineEnabled.Value && (interactable is LootableContainer || interactable is Trunk))

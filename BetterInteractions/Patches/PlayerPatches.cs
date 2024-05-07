@@ -41,7 +41,7 @@ namespace Arys.BetterInteractions.Patches
                     Plugin.OutlineController.UndoCommand();
                 }
                 // Already have a result so we only need to enable outline
-                else if (InteractionsHelper.IsEnabledInteractable(interactable))
+                else if (interactable.IsOutlineEnabled())
                 {
                     // TODO:
                     // Adding the outline component to a Corpse can end up applying the outline effect to other interactables
