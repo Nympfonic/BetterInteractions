@@ -30,8 +30,8 @@ namespace Arys.BetterInteractions
         internal static ManualLogSource LogSource;
         internal static ConfigFile Configuration;
 
-        internal static Shader LootItemMaskShader;
-        internal static Shader LootItemFillShader;
+        internal static Material OutlineMaskMaterial;
+        internal static Material OutlineFillMaterial;
 
         internal static OutlineController OutlineController = null;
         //internal static BetterInteractionsOutline CachedOutlineComponent = null;
@@ -63,8 +63,12 @@ namespace Arys.BetterInteractions
             Directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             string shadersPath = Path.Combine(Directory, "arys_betterinteractions_shaders");
-            LootItemMaskShader = LoadShader("assets/shaders/betterinteractions_outlinemask.shader", shadersPath);
-            LootItemFillShader = LoadShader("assets/shaders/betterinteractions_outlinefill.shader", shadersPath);
+
+            Shader outlineMaskShader = LoadShader("assets/shaders/betterinteractions_outlinemask.shader", shadersPath);
+            Shader outlineFillShader = LoadShader("assets/shaders/betterinteractions_outlinefill.shader", shadersPath);
+
+            OutlineMaskMaterial = new Material(outlineMaskShader);
+            OutlineFillMaterial = new Material(outlineFillShader);
 
             InitConfigBindings();
 

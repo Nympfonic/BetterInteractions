@@ -63,8 +63,8 @@ namespace Arys.BetterInteractions.Components
         {
             _renderers = GetComponentsInChildren<Renderer>();
 
-            _maskMaterial = new Material(Plugin.LootItemMaskShader);
-            _fillMaterial = new Material(Plugin.LootItemFillShader);
+            _maskMaterial = Plugin.OutlineMaskMaterial;
+            _fillMaterial = Plugin.OutlineFillMaterial;
 
             _maskMaterial.SetFloat(zTestId, (float)CompareFunction.Always);
             _fillMaterial.SetFloat(zTestId, (float)CompareFunction.LessEqual);
