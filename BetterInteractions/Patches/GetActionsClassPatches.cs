@@ -3,6 +3,7 @@ using Arys.BetterInteractions.Helper;
 using EFT;
 using EFT.Interactive;
 using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -51,7 +52,7 @@ namespace Arys.BetterInteractions.Patches
                             new ActionsTypesClass
                             {
                                 Name = "Peek",
-                                Action = () => PeekDoor(owner, door),
+                                Action = () => OpenDoor(owner, door, PeekDoor),
                                 Disabled = !door.Operatable
                             }
                         );
@@ -67,45 +68,44 @@ namespace Arys.BetterInteractions.Patches
                         new ActionsTypesClass
                         {
                             Name = "OpenDoor",
-                            Action = () => OpenDoorFully(owner, door),
+                            Action = () => OpenDoor(owner, door, OpenDoorFully),
                             Disabled = !door.Operatable
                         }
                     );
                 }
             }
 
-            private static void PeekDoor(GamePlayerOwner owner, Door door)
+            private static void OpenDoor(GamePlayerOwner owner, Door door, Action<GamePlayerOwner, Door, InteractionResult> action)
             {
                 owner.Player.MovementContext.ResetCanUsePropState();
 
                 var gstruct = Door.Interact(owner.Player, EInteractionType.Open);
                 if (gstruct.Succeeded)
                 {
-                    // Change door open angle
-                    float prevAngle = door.OpenAngle;
-                    door.OpenAngle = Mathf.Sign(prevAngle) * 25f;
-                    // Execute interaction
-                    owner.Player.ExecuteWorldInteraction(door, gstruct.Value);
-                    // Reset open angle
-                    door.OpenAngle = prevAngle;
+                    action(owner, door, gstruct.Value);
                 }
             }
 
-            private static void OpenDoorFully(GamePlayerOwner owner, Door door)
+            private static void PeekDoor(GamePlayerOwner owner, Door door, InteractionResult interactionResult)
             {
-                owner.Player.MovementContext.ResetCanUsePropState();
+                // Change door open angle
+                float prevAngle = door.OpenAngle;
+                door.OpenAngle = Mathf.Sign(prevAngle) * 25f;
+                // Execute interaction
+                owner.Player.ExecuteWorldInteraction(door, interactionResult);
+                // Reset open angle
+                door.OpenAngle = prevAngle;
+            }
 
-                var gstruct = Door.Interact(owner.Player, EInteractionType.Open);
-                if (gstruct.Succeeded)
-                {
-                    // Door is already open, don't play door opening sound
-                    AudioClip[] openSounds = door.OpenSound;
-                    door.OpenSound = [];
-                    // Execute interaction
-                    owner.Player.ExecuteWorldInteraction(door, gstruct.Value);
-                    // Reset open sounds
-                    door.OpenSound = openSounds;
-                }
+            private static void OpenDoorFully(GamePlayerOwner owner, Door door, InteractionResult interactionResult)
+            {
+                // Door is already open, don't play door opening sound
+                AudioClip[] openSounds = door.OpenSound;
+                door.OpenSound = [];
+                // Execute interaction
+                owner.Player.ExecuteWorldInteraction(door, interactionResult);
+                // Reset open sounds
+                door.OpenSound = openSounds;
             }
         }
     }
