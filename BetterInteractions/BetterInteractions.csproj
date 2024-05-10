@@ -48,9 +48,6 @@
     <Reference Include="UniTask">
       <HintPath>References\UniTask.dll</HintPath>
     </Reference>
-    <Reference Include="UniTask.DOTween">
-      <HintPath>References\UniTask.DOTween.dll</HintPath>
-    </Reference>
     <Reference Include="UniTask.Linq">
       <HintPath>References\UniTask.Linq.dll</HintPath>
     </Reference>
