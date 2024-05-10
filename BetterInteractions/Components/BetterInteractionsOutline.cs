@@ -2,12 +2,9 @@
 // Source Repository: https://github.com/chrisnolet/QuickOutline
 
 using BepInEx.Configuration;
-using EFT;
-using System;
-using System.Collections;
+using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -25,37 +22,20 @@ namespace Arys.BetterInteractions.Components
         private Renderer[] _renderers;
         private Material _maskMaterial;
         private Material _fillMaterial;
-        private Coroutine _initialisationCoroutine;
         private bool _isInitialised = false;
 
         public void ToggleOutline(bool enabled)
         {
-            void action()
+            if (_isInitialised)
             {
-                foreach (var renderer in _renderers)
-                {
-                    var materials = renderer.sharedMaterials.ToList();
-                    if (enabled)
-                    {
-                        materials.Add(_maskMaterial);
-                        materials.Add(_fillMaterial);
-                    }
-                    else
-                    {
-                        materials.Remove(_maskMaterial);
-                        materials.Remove(_fillMaterial);
-                    }
-                    renderer.materials = [.. materials];
-                }
-            }
-
-            if (IsInitialised())
-            {
-                action();
+                UpdateMaterials(enabled);
             }
             else
             {
-                _initialisationCoroutine = StaticManager.BeginCoroutine(DoAfterInitialisation(action));
+                UniTask.RunOnThreadPool(async () => {
+                    await UniTask.WaitUntil(() => _isInitialised);
+                    UpdateMaterials(enabled);
+                });
             }
         }
 
@@ -70,7 +50,7 @@ namespace Arys.BetterInteractions.Components
             _fillMaterial.SetFloat(zTestId, (float)CompareFunction.LessEqual);
         }
 
-        private async void Start()
+        private async UniTaskVoid Start()
         {
             await LoadSmoothNormalsAsync();
 
@@ -88,20 +68,27 @@ namespace Arys.BetterInteractions.Components
             Destroy(_fillMaterial);
         }
 
-        private bool IsInitialised()
+        private void UpdateMaterials(bool enabled)
         {
-            return _isInitialised;
-        }
-
-        private IEnumerator DoAfterInitialisation(Action action)
-        {
-            yield return new WaitUntil(IsInitialised);
-
-            action();
+            foreach (var renderer in _renderers)
+            {
+                var materials = renderer.sharedMaterials.ToList();
+                if (enabled)
+                {
+                    materials.Add(_maskMaterial);
+                    materials.Add(_fillMaterial);
+                }
+                else
+                {
+                    materials.Remove(_maskMaterial);
+                    materials.Remove(_fillMaterial);
+                }
+                renderer.materials = [.. materials];
+            }
         }
 
         // Retrieve or generate smooth normals
-        private async Task LoadSmoothNormalsAsync()
+        private async UniTask LoadSmoothNormalsAsync()
         {
             foreach (var meshFilter in GetComponentsInChildren<MeshFilter>())
             {
@@ -143,7 +130,7 @@ namespace Arys.BetterInteractions.Components
             }
         }
 
-        private async Task<List<Vector3>> SmoothNormalsAsync(Mesh mesh)
+        private async UniTask<List<Vector3>> SmoothNormalsAsync(Mesh mesh)
         {
             // Group vertices by location
             var groups = mesh.vertices
@@ -154,7 +141,7 @@ namespace Arys.BetterInteractions.Components
             var smoothNormals = new List<Vector3>(mesh.normals);
 
             // Average normals for grouped vertices
-            await Task.Run(() =>
+            await UniTask.RunOnThreadPool(() =>
             {
                 foreach (var group in groups)
                 {

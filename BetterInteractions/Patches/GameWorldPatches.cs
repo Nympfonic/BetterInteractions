@@ -29,9 +29,12 @@ namespace Arys.BetterInteractions.Patches
             {
                 // Add BetterInteractionsOutline component to mod-enabled lootable objects
                 // When players/bots are killed, they are turned into corpses and are registered through this patched method
-                if ((loot as InteractableObject).IsOutlineEnabled())
+
+                var interactable = loot as InteractableObject;
+
+                if (interactable.IsOutlineEnabled())
                 {
-                    (loot as InteractableObject).gameObject.AddComponent<BetterInteractionsOutline>();
+                    interactable.GetOrAddOutline();
                 }
             }
         }
@@ -59,9 +62,16 @@ namespace Arys.BetterInteractions.Patches
                     WorldInteractiveObject interactive = allWorldInteractives[i];
 
                     // Add outline to all baked world interactive objects
-                    interactive.gameObject.AddComponent<BetterInteractionsOutline>();
+                    if (interactive.transform.parent != null)
+                    {
+                        interactive.transform.parent.gameObject.AddComponent<BetterInteractionsOutline>();
+                    }
+                    else
+                    {
+                        interactive.gameObject.AddComponent<BetterInteractionsOutline>();
+                    }
 
-                    if (Plugin.DoorPhysicsEnabled.Value && interactive is Door && interactive is not DoorSwitch && interactive is not SlidingDoor)
+                    if (interactive.IsPhysicsEnabledDoor())
                     {
                         // Add physics to normal doors only
                         var component = interactive.gameObject.AddComponent<BetterInteractionsPhysicsDoor>();
@@ -72,6 +82,10 @@ namespace Arys.BetterInteractions.Patches
                     var handle = _handleField.GetValue(interactive) as DoorHandle;
                     if (handle != null)
                     {
+                        // TODO:
+                        // Adding the outline component to the handle doesn't solve the issue of still needing to be toggled
+                        // Toggle outline if the parent door outline is also toggled
+
                         // Add outline to door handles
                         handle.gameObject.AddComponent<BetterInteractionsOutline>();
                     }
@@ -90,9 +104,9 @@ namespace Arys.BetterInteractions.Patches
             [PatchPrefix]
             private static void PrefixPatch()
             {
-                Plugin.OutlineController.ClearCommandList();
-                Plugin.OutlineController = null;
-                Plugin.CachedPhysicsDoors.Clear();
+                BetterInteractionsPlugin.OutlineController.ClearCommandList();
+                BetterInteractionsPlugin.OutlineController = null;
+                BetterInteractionsPlugin.CachedPhysicsDoors.Clear();
                 BetterInteractionsOutline.RegisteredMeshes.Clear();
                 GizmoHelper.DestroyGizmo();
             }

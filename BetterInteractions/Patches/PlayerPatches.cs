@@ -17,8 +17,8 @@ namespace Arys.BetterInteractions.Patches
     {
         internal class CustomInteractionCheck : ModulePatch
         {
-            private readonly static int _gameWorldLayer1 = (int)AccessTools.DeclaredField(typeof(GameWorld), "int_1").GetValue(null);
-            private readonly static int _gameWorldLayer3 = (int)AccessTools.DeclaredField(typeof(GameWorld), "int_3").GetValue(null);
+            //private readonly static FieldInfo _gameWorldLayer1Field = AccessTools.DeclaredField(typeof(GameWorld), "int_1");
+            //private readonly static FieldInfo _gameWorldLayer3Field = AccessTools.DeclaredField(typeof(GameWorld), "int_3");
 
             protected override MethodBase GetTargetMethod()
             {

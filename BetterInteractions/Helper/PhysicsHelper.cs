@@ -1,4 +1,5 @@
 ﻿using Aki.Reflection.Utils;
+using EFT.Interactive;
 using HarmonyLib;
 using System;
 using System.Linq;
@@ -17,6 +18,15 @@ namespace Arys.BetterInteractions.Helper
         internal static void UnsupportRigidbody(Rigidbody rigidbody)
         {
             _unsupportRigidbodyMethod.Invoke(null, [ rigidbody ]);
+        }
+
+        internal static bool IsPhysicsEnabledDoor(this WorldInteractiveObject interactable)
+        {
+            return BetterInteractionsPlugin.DoorPhysicsEnabled.Value
+                && interactable is Door
+                && interactable is not SlidingDoor
+                && interactable is not DoorSwitch
+                && interactable is not KeycardDoor;
         }
 
         private static readonly Type _physicsManagerType = PatchConstants.EftTypes.First(type => AccessTools.DeclaredMethod(type, "IgnoreCollision") is not null);
