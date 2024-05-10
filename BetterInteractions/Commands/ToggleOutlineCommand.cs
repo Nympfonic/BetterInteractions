@@ -14,12 +14,18 @@ namespace Arys.BetterInteractions.Commands
 
         public void Execute()
         {
-            _outline.ToggleOutline(true);
+            if (_outline != null)
+            {
+                _outline.ToggleOutline(true);
+            }
         }
 
         public void Undo()
         {
-            _outline.ToggleOutline(false);
+            if (_outline != null)
+            {
+                _outline.ToggleOutline(false);
+            }
         }
     }
 }
