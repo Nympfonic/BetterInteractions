@@ -43,7 +43,7 @@ namespace Arys.BetterInteractions.Patches
                         int openActionId = actions.FindIndex(x => x.Name == "OpenDoor");
                         if (openActionId == -1)
                         {
-                            Plugin.LogSource.LogError($"{nameof(openActionId)} is somehow -1 when it shouldn't be");
+                            BetterInteractionsPlugin.LogSource.LogError($"{nameof(openActionId)} is somehow -1 when it shouldn't be");
                         }
 
                         // Insert Peek action after OpenDoor action

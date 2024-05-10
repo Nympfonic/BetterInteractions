@@ -18,7 +18,8 @@ using UnityEngine;
 namespace Arys.BetterInteractions
 {
     [BepInPlugin("com.Arys.BetterInteractions", "Arys' Better Interactions", "1.0.0")]
-    public class Plugin : BaseUnityPlugin
+    [BepInDependency("com.Arys.UnityToolkit")]
+    public class BetterInteractionsPlugin : BaseUnityPlugin
     {
 #if DEBUG
         internal const string SECTION_DEBUG = "Debugging";

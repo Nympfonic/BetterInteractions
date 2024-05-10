@@ -50,7 +50,7 @@ namespace Arys.BetterInteractions.Patches
             [PatchPostfix]
             private static void PatchPostfix(GameWorld __instance)
             {
-                Plugin.OutlineController = new OutlineController();
+                BetterInteractionsPlugin.OutlineController = new OutlineController();
 
                 var allWorldInteractives = _worldInteractiveObjectsField.GetValue(__instance.World_0) as WorldInteractiveObject[];
 
@@ -65,7 +65,7 @@ namespace Arys.BetterInteractions.Patches
                     {
                         // Add physics to normal doors only
                         var component = interactive.gameObject.AddComponent<BetterInteractionsPhysicsDoor>();
-                        Plugin.CachedPhysicsDoors.Add(component);
+                        BetterInteractionsPlugin.CachedPhysicsDoors.Add(component);
                     }
                     
                     // Door handles are not attached to Door game objects so we get the reference via the _handle field

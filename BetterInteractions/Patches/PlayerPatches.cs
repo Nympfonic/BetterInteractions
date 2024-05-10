@@ -28,7 +28,7 @@ namespace Arys.BetterInteractions.Patches
             [PatchPostfix]
             private static void PatchPostfix(Player __instance)
             {
-                if (!__instance.IsYourPlayer || Plugin.OutlineController == null)
+                if (!__instance.IsYourPlayer || BetterInteractionsPlugin.OutlineController == null)
                 {
                     return;
                 }
@@ -38,7 +38,7 @@ namespace Arys.BetterInteractions.Patches
                 // Disable cached interactable outline if no results
                 if (interactable == null)
                 {
-                    Plugin.OutlineController.UndoCommand();
+                    BetterInteractionsPlugin.OutlineController.UndoCommand();
                 }
                 // Already have a result so we only need to enable outline
                 else if (interactable.IsOutlineEnabled())
@@ -47,9 +47,10 @@ namespace Arys.BetterInteractions.Patches
                     // Adding the outline component to a Corpse can end up applying the outline effect to other interactables
                     // that are child game objects of the Corpse which can lead to catastrophic results.
                     // Fix!!
-                    var component = interactable.GetAddComponent<BetterInteractionsOutline>();
+
+                    BetterInteractionsOutline component = interactable.GetOrAddOutline();
                     var command = new ToggleOutlineCommand(component);
-                    Plugin.OutlineController.AddCommand(command);
+                    BetterInteractionsPlugin.OutlineController.AddCommand(command);
 
                     //return;
                 }

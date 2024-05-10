@@ -63,8 +63,8 @@ namespace Arys.BetterInteractions.Components
         {
             _renderers = GetComponentsInChildren<Renderer>();
 
-            _maskMaterial = Plugin.OutlineMaskMaterial;
-            _fillMaterial = Plugin.OutlineFillMaterial;
+            _maskMaterial = BetterInteractionsPlugin.OutlineMaskMaterial;
+            _fillMaterial = BetterInteractionsPlugin.OutlineFillMaterial;
 
             _maskMaterial.SetFloat(zTestId, (float)CompareFunction.Always);
             _fillMaterial.SetFloat(zTestId, (float)CompareFunction.LessEqual);
@@ -74,7 +74,7 @@ namespace Arys.BetterInteractions.Components
         {
             await LoadSmoothNormalsAsync();
 
-            Plugin.Configuration.SettingChanged += UpdateOutlineSettings;
+            BetterInteractionsPlugin.Configuration.SettingChanged += UpdateOutlineSettings;
 
             UpdateOutlineSettings();
 
@@ -83,8 +83,7 @@ namespace Arys.BetterInteractions.Components
 
         private void OnDestroy()
         {
-            StaticManager.KillCoroutine(ref _initialisationCoroutine);
-            Plugin.Configuration.SettingChanged -= UpdateOutlineSettings;
+            BetterInteractionsPlugin.Configuration.SettingChanged -= UpdateOutlineSettings;
             Destroy(_maskMaterial);
             Destroy(_fillMaterial);
         }
@@ -207,13 +206,13 @@ namespace Arys.BetterInteractions.Components
 
         private void UpdateOutlineSettings()
         {
-            _fillMaterial.SetColor(colorId, Plugin.OutlineColour.Value);
-            _fillMaterial.SetFloat(widthId, Plugin.OutlineWidth.Value);
+            _fillMaterial.SetColor(colorId, BetterInteractionsPlugin.OutlineColour.Value);
+            _fillMaterial.SetFloat(widthId, BetterInteractionsPlugin.OutlineWidth.Value);
         }
 
         private void UpdateOutlineSettings(object sender, SettingChangedEventArgs e)
         {
-            if (e.ChangedSetting.Definition.Section == Plugin.SECTION_INTERACTABLES)
+            if (e.ChangedSetting.Definition.Section == BetterInteractionsPlugin.SECTION_INTERACTABLES)
             {
                 UpdateOutlineSettings();
             }

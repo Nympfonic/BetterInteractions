@@ -11,10 +11,10 @@ namespace Arys.BetterInteractions.Helper
     {
         internal static bool IsOutlineEnabled(this InteractableObject interactable)
         {
-            return (Plugin.LootItemOutlineEnabled.Value && interactable is LootItem)
-                || (Plugin.LootContainerOutlineEnabled.Value && (interactable is LootableContainer || interactable is Trunk))
-                || (Plugin.SwitchOutlineEnabled.Value && interactable is Switch)
-                || (Plugin.DoorOutlineEnabled.Value && interactable is Door);
+            return (BetterInteractionsPlugin.LootItemOutlineEnabled.Value && interactable is LootItem)
+                || (BetterInteractionsPlugin.LootContainerOutlineEnabled.Value && (interactable is LootableContainer || interactable is Trunk))
+                || (BetterInteractionsPlugin.SwitchOutlineEnabled.Value && interactable is Switch)
+                || (BetterInteractionsPlugin.DoorOutlineEnabled.Value && interactable is Door);
         }
 
         internal static void ExecuteWorldInteraction(this Player player, WorldInteractiveObject interactiveObject, InteractionResult interactionResult)
