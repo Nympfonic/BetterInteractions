@@ -1,4 +1,6 @@
-﻿using Arys.BetterInteractions.Components;
+﻿#pragma warning disable S2223, S2696
+
+using Arys.BetterInteractions.Components;
 using Arys.BetterInteractions.Controllers;
 #if DEBUG
 using Arys.BetterInteractions.Helper.Debug;
@@ -7,9 +9,6 @@ using Arys.BetterInteractions.Patches;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-using Comfort.Common;
-using EFT;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -63,9 +62,10 @@ namespace Arys.BetterInteractions
             Directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             string shadersPath = Path.Combine(Directory, "arys_betterinteractions_shaders");
-
-            Shader outlineMaskShader = LoadShader("assets/shaders/betterinteractions_outlinemask.shader", shadersPath);
-            Shader outlineFillShader = LoadShader("assets/shaders/betterinteractions_outlinefill.shader", shadersPath);
+            AssetBundle shaderBundle = LoadBundle(shadersPath);
+            Shader outlineMaskShader = LoadShader("assets/shaders/betterinteractions_outlinemask.shader", shaderBundle);
+            Shader outlineFillShader = LoadShader("assets/shaders/betterinteractions_outlinefill.shader", shaderBundle);
+            shaderBundle.Unload(false);
 
             OutlineMaskMaterial = new Material(outlineMaskShader);
             OutlineFillMaterial = new Material(outlineFillShader);
@@ -76,7 +76,7 @@ namespace Arys.BetterInteractions
             new GameWorldPatches.InitialiseComponents().Enable();
             new GameWorldPatches.ClearStatics().Enable();
             new PlayerPatches.CustomInteractionCheck().Enable();
-            new GetActionsClassPatches.AddPeekAction().Enable();
+            new GetActionsClassPatches.AddDoorActions().Enable();
         }
 
         private void InitConfigBindings()
@@ -94,7 +94,7 @@ namespace Arys.BetterInteractions
             );
 #endif
 
-#region Interactables
+            #region Interactables
             InteractableSphereRadius = Config.Bind(
                 SECTION_INTERACTABLES,
                 "Sphere Detection Radius",
@@ -173,7 +173,7 @@ namespace Arys.BetterInteractions
             );
             #endregion
 
-#region Doors
+            #region Doors
             DoorPhysicsEnabled = Config.Bind(
                 SECTION_DOORS,
                 "Enable Door Physics",
@@ -184,16 +184,18 @@ namespace Arys.BetterInteractions
                     new ConfigurationManagerAttributes { Order = 1 }
                 )
             );
-#endregion
+            #endregion
+        }
+
+        private static AssetBundle LoadBundle(string bundlePath)
+        {
+            return AssetBundle.LoadFromFile(bundlePath);
         }
 
         // Shaders are assets so they will persist through scene changes
-        private static Shader LoadShader(string shaderName, string bundlePath)
+        private static Shader LoadShader(string shaderName, AssetBundle bundle)
         {
-            AssetBundle assetBundle = AssetBundle.LoadFromFile(bundlePath);
-            Shader shader = assetBundle.LoadAsset<Shader>(shaderName);
-            assetBundle.Unload(false);
-            return shader;
+            return bundle.LoadAsset<Shader>(shaderName);
         }
     }
 }

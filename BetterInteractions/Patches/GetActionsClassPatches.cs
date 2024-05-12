@@ -12,7 +12,7 @@ namespace Arys.BetterInteractions.Patches
 {
     internal class GetActionsClassPatches
     {
-        internal class AddPeekAction : ModulePatch
+        internal class AddDoorActions : ModulePatch
         {
             protected override MethodBase GetTargetMethod()
             {
