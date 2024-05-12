@@ -1,8 +1,8 @@
 ﻿using Aki.Reflection.Patching;
 using Arys.BetterInteractions.Components;
 using Arys.BetterInteractions.Controllers;
-using Arys.BetterInteractions.Helper;
-using Arys.BetterInteractions.Helper.Debug;
+using Arys.BetterInteractions.Helpers;
+using Arys.BetterInteractions.Helpers.Debug;
 using EFT;
 using EFT.Interactive;
 using HarmonyLib;

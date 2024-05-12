@@ -1,4 +1,4 @@
-﻿using Arys.BetterInteractions.Helper;
+﻿using Arys.BetterInteractions.Helpers;
 using EFT.Interactive;
 using UnityEngine;
 

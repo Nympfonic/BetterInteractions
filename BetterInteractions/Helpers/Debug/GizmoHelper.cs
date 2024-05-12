@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Arys.BetterInteractions.Helper.Debug
+namespace Arys.BetterInteractions.Helpers.Debug
 {
     internal enum GizmoMode
     {

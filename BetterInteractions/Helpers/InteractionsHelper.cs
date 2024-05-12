@@ -5,7 +5,7 @@ using HarmonyLib;
 using System.Reflection;
 using UnityEngine;
 
-namespace Arys.BetterInteractions.Helper
+namespace Arys.BetterInteractions.Helpers
 {
     internal static class InteractionsHelper
     {

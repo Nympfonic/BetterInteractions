@@ -3,7 +3,7 @@
 using Arys.BetterInteractions.Components;
 using Arys.BetterInteractions.Controllers;
 #if DEBUG
-using Arys.BetterInteractions.Helper.Debug;
+using Arys.BetterInteractions.Helpers.Debug;
 #endif
 using Arys.BetterInteractions.Patches;
 using BepInEx;

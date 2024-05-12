@@ -1,9 +1,9 @@
 ﻿using Aki.Reflection.Patching;
 using Arys.BetterInteractions.Commands;
 using Arys.BetterInteractions.Components;
-using Arys.BetterInteractions.Helper;
+using Arys.BetterInteractions.Helpers;
 #if DEBUG
-using Arys.BetterInteractions.Helper.Debug;
+using Arys.BetterInteractions.Helpers.Debug;
 #endif
 using EFT;
 using EFT.Interactive;

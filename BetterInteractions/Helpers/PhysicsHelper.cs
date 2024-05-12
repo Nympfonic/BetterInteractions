@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace Arys.BetterInteractions.Helper
+namespace Arys.BetterInteractions.Helpers
 {
     internal static class PhysicsHelper
     {
