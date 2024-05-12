@@ -1,5 +1,4 @@
 ﻿using Arys.BetterInteractions.Components;
-using Arys.BetterInteractions.Interfaces;
 
 namespace Arys.BetterInteractions.Commands
 {

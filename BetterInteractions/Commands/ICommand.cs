@@ -1,4 +1,4 @@
-﻿namespace Arys.BetterInteractions.Interfaces
+﻿namespace Arys.BetterInteractions.Commands
 {
     public interface ICommand
     {

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Arys.BetterInteractions.Interfaces;
+using Arys.BetterInteractions.Commands;
 
 namespace Arys.BetterInteractions.Controllers
 {
